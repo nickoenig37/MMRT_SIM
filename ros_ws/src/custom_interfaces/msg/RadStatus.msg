@@ -3,6 +3,9 @@ std_msgs/Header header
 # Current angle reading (deg)
 float64 angle
 
+# Current Temperature (C)
+float64 temp
+
 # EEPROM Status
 uint8 eeprom_status
 
@@ -15,6 +18,12 @@ uint8 encoder_status
 # rad state
 uint8 rad_state
 
+# rad flags
+uint8 rad_flags
+
 # limit switch state
 bool ls_state_1 false
 bool ls_state_2 false
+
+# temperature reading state
+uint8 ntc_state
