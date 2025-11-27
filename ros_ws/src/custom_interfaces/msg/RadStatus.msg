@@ -18,9 +18,12 @@ uint8 encoder_status
 # rad state
 uint8 rad_state
 
+# rad flags
+uint8 rad_flags
+
 # limit switch state
 bool ls_state_1 false
 bool ls_state_2 false
 
 # temperature reading state
-uint8_t ntc_state
+uint8 ntc_state
