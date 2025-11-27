@@ -56,7 +56,6 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -82,6 +81,8 @@ double* angle_average_buffer;
 uint8_t buffer_head;
 
 int16_t steps_to_move;
+
+uint32_t prev_ms = 0;
 
 /* USER CODE END PV */
 
@@ -141,7 +142,7 @@ int main(void)
     rad_params.DRVCTRL_INTPOL = 0b1;
     rad_params.DRVCTRL_MRES = 0b1000;
 
-    rad_params.SGCSCONF_CS = 10;
+    rad_params.SGCSCONF_CS = 5;
     rad_params.SGCSCONF_SFILT = 0b0;
     rad_params.SGCSCONF_SGT = 0b0000010;
 
@@ -155,6 +156,9 @@ int main(void)
     rad_params.PID_MAX_OUTPUT = 1000;
 
     rad_params.HOME_OFFSET = 0;
+
+    rad_params.SW_STOP_ENABLED = 0;
+    rad_params.WATCH_DOG_ENABLED = 0;
 
     
 
@@ -211,7 +215,7 @@ int main(void)
 
     }
 
-
+    rad_status.flags = (rad_params.SW_STOP_ENABLED) | (rad_params.WATCH_DOG_ENABLED);
 
     MX_TMC_2590_1_Init();
     MX_AS5048A_1_Init();
@@ -261,7 +265,8 @@ int main(void)
             MAX_ROTATIONS = RAD_TYPE_DRIVETRAIN_MAX_ROTATIONS;
             MOTOR_GEARING = RAD_TYPE_DRIVETRAIN_GEARING;
             STEPS_PER_REVOLUTION = RAD_TYPE_DRIVETRAIN_STEPS_PER_REVOLUTION;
-            tmc_2590_1.Init.inverted = RAD_TYPE_ARM_INVERSION_FACTOR;
+            // Wrist motors are the same as drive train
+            tmc_2590_1.Init.inverted = RAD_TYPE_DRIVETRAIN_INVERSION_FACTOR;
             break;
         }
         case RAD_TYPE_ARM_GRIPPER:
@@ -368,16 +373,30 @@ int main(void)
                 {
                     double new_setpoint = decode_double_big_endian(new_message->data);
 
-                    if (new_setpoint < min_angle)
+                    if (rad_params.RAD_TYPE != RAD_TYPE_ARM_WRIST_LEFT &&
+                        rad_params.RAD_TYPE != RAD_TYPE_ARM_WRIST_RIGHT)
                     {
-                        new_setpoint = min_angle;
+                        if (new_setpoint < min_angle)
+                        {
+                            new_setpoint = min_angle;
+                        }
+                        else if (new_setpoint > max_angle)
+                        {
+                            new_setpoint = max_angle;
+                        }
+                        PID_ChangeSetPoint(&pid_1, new_setpoint*MOTOR_GEARING);
                     }
-                    else if (new_setpoint > max_angle)
+                    else
                     {
-                        new_setpoint = max_angle;
+                        // Set raw setpoint for wrist motors
+                        PID_ChangeSetPoint(&pid_1, new_setpoint);
                     }
                     
-                    PID_ChangeSetPoint(&pid_1, new_setpoint*MOTOR_GEARING);
+                    // Enable Watch Dog here
+                    if (rad_params.WATCH_DOG_ENABLED)
+                    {
+                    	rad_can.watchdog_kick = 1;
+                    }
                     break;
                 }
                 case GET_ENCODER_VALUE:
@@ -408,6 +427,19 @@ int main(void)
                 {
                     MX_CAN_Broadcast_Uint32_Data(&rad_can, rad_params.STEPPER_SPEED, GET_STEPPER_SPEED);
                     break;
+                }
+                case SET_RAD_FLAGS:
+                {
+                	uint8_t flags = new_message->data[0];
+                	rad_params.SW_STOP_ENABLED = flags & (1 << 0);
+                	rad_params.WATCH_DOG_ENABLED = flags & (1 << 1);
+                	rad_status.flags = (rad_params.SW_STOP_ENABLED) | (rad_params.WATCH_DOG_ENABLED);
+                	break;
+                }
+                case GET_RAD_FLAGS:
+                {
+                	MX_CAN_Broadcast_Uint8_Data(&rad_can, rad_status.flags, GET_RAD_FLAGS);
+                	break;
                 }
                 case SET_P_VALUE:
                 {
@@ -866,7 +898,7 @@ int main(void)
                         steps_to_move = -1*tmc_2590_1.Init.max_steps;
                     }
 
-                    rad_state = RAD_STATE_INIT;
+                    rad_state = RAD_STATE_PULSE_CONTROL;
 
                     break;
                 }
@@ -929,6 +961,25 @@ int main(void)
                 case GET_HOME_OFFSET:
                 {
                     //MX_CAN_Broadcast_Double_Data(&rad_can, rad_params.HOME_OFFSET, GET_HOME_OFFSET);
+                    break;
+                }
+
+                case SET_MAX_POINT:
+                {
+                    // For wrist
+                    PID_SetMaxPoint(&pid_1, new_message->data[0]);
+                    PID_ChangeSetPoint(&pid_1, (new_message->data[0]) * MAX_ROTATIONS);
+                    PID_Update_BangBang(&pid_1);
+                    rad_state = RAD_STATE_ACTIVE;
+                    break;
+                }
+                case SET_ZERO_POINT:
+                {
+                    // For wrist
+                    PID_SetZeroPoint(&pid_1);
+                    PID_ChangeSetPoint(&pid_1, 0.0);
+                    PID_Update_BangBang(&pid_1);
+                    rad_state = RAD_STATE_ACTIVE;
                     break;
                 }
                 default:
@@ -1035,6 +1086,12 @@ int main(void)
                 
                 }
 
+                if (!rad_params.SW_STOP_ENABLED)
+                {
+                	cw_enable = 1;
+                	ccw_enable = 1;
+                }
+
                 if ((steps_to_move > 0) && cw_enable)
                 {
 
@@ -1094,8 +1151,8 @@ int main(void)
                             break;
 
                         case RAD_TYPE_ARM_SHOULDER:
-                            PID_SetMaxPoint(&pid_1, RAD_TYPE_ARM_SHOULDER_MAX_ROTATIONS);
-                            PID_ChangeSetPoint(&pid_1, RAD_TYPE_ARM_SHOULDER_MAX_ROTATIONS*360);
+                            PID_SetZeroPoint(&pid_1);
+                            PID_ChangeSetPoint(&pid_1, 0.0);
                             break;
 
                         case RAD_TYPE_ARM_BASE:
@@ -1121,14 +1178,14 @@ int main(void)
 
                     rad_state = RAD_STATE_ACTIVE;
         	    }
-                else if (ls_state_2 == GPIO_PIN_SET)
+                else if (ls_state_2 == GPIO_PIN_SET && rad_params.RAD_TYPE > RAD_TYPE_DRIVETRAIN_LIMIT_SWITCH_LEFT)
                 {
                     TMC_2590_Stop(&tmc_2590_1);
                     switch (rad_params.RAD_TYPE) 
                     {
                         case RAD_TYPE_ARM_SHOULDER:
-                            PID_SetZeroPoint(&pid_1);
-                            PID_ChangeSetPoint(&pid_1, 0);
+                            PID_SetMaxPoint(&pid_1, RAD_TYPE_ARM_SHOULDER_MAX_ROTATIONS);
+                            PID_ChangeSetPoint(&pid_1, RAD_TYPE_ARM_SHOULDER_MAX_ROTATIONS*360);
                             break;
  
                         case RAD_TYPE_ARM_ELBOW:
@@ -1224,7 +1281,7 @@ int main(void)
 
                 
 
-                if (ls_state == GPIO_PIN_SET)
+                 if (rad_params.SW_STOP_ENABLED && ls_state == GPIO_PIN_SET)
                 {
                     switch (rad_params.RAD_TYPE) 
                     {
@@ -1250,7 +1307,7 @@ int main(void)
                         }
                         case RAD_TYPE_ARM_SHOULDER:
                         {
-                            PID_SetMaxPoint(&pid_1, 37);
+                            PID_SetZeroPoint(&pid_1);
                             cw_enable = 0;
                             ccw_enable = 1;
                             break;
@@ -1266,13 +1323,13 @@ int main(void)
 				    }
 
                 }
-                else if (ls_state_2 == GPIO_PIN_SET)
+                else if (rad_params.SW_STOP_ENABLED && ls_state_2 == GPIO_PIN_SET)
                 {
                     switch (rad_params.RAD_TYPE) 
                     {
                         case RAD_TYPE_ARM_SHOULDER:
                         {
-                            PID_SetZeroPoint(&pid_1);
+                            PID_SetMaxPoint(&pid_1, RAD_TYPE_ARM_SHOULDER_MAX_ROTATIONS);
                             cw_enable = 1;
                             ccw_enable = 0;
                             break;
@@ -1335,6 +1392,12 @@ int main(void)
                     TMC_2590_Stop(&tmc_2590_1);
                 }
 
+                // Once timeout is exceeded, disable close loop control
+                if (rad_can.watchdog_kick && rad_can.timer > CAN_MESSAGE_TIMEOUT_MS)
+                {
+                    rad_state = RAD_STATE_PULSE_CONTROL;
+                    rad_can.watchdog_kick = 0;
+                }
 
                 break;
             }
@@ -1356,14 +1419,21 @@ int main(void)
 //                 sum = sum + angle_average_buffer[i];
 //             }
             //rad_status.current_angle = (double) sum / AVERAGING_WINDOW_SIZE;
-            rad_status.current_angle = (double) (pid_1.feedback_adj / MOTOR_GEARING);
+            if (rad_params.RAD_TYPE != RAD_TYPE_ARM_WRIST_LEFT &&
+                rad_params.RAD_TYPE != RAD_TYPE_ARM_WRIST_RIGHT)
+            {
+                rad_status.current_angle = (double) (pid_1.feedback_adj / MOTOR_GEARING);
+            }
+            else
+            {
+                rad_status.current_angle = (double) (pid_1.feedback_adj);
+            }
         	//rad_status.current_angle = (double) pid_1.output;
             //AS5048A_ReadAngle(&as5048a_1);
             //rad_status.current_angle = as5048a_1.Angle_double;
 
             MX_CAN_Broadcast_Odometry_Message(&rad_can, rad_status);
         }
-        
         if ((rad_params.HEALTH_INTERVAL != 0) && (HAL_GetTick() % rad_params.HEALTH_INTERVAL == 0))
         {
             rad_status.RAD_STATE = rad_state;
@@ -1383,6 +1453,9 @@ int main(void)
 
             
         }
+
+        rad_can.timer += HAL_GetTick() - prev_ms;
+        prev_ms = HAL_GetTick();
 
     /* USER CODE END WHILE */
 

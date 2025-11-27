@@ -56,7 +56,8 @@ std::map<std::string, uint8_t> get_cmd = {
   {"GET_DRVCTRL_MRES", CAN_GET_DRVCTRL_MRES},
   {"GET_PID_MIN_OUTPUT", CAN_GET_PID_MIN_OUTPUT},
   {"GET_PID_MAX_OUTPUT", CAN_GET_PID_MAX_OUTPUT},
-  {"GET_HOME_OFFSET", CAN_GET_HOME_OFFSET}
+  {"GET_HOME_OFFSET", CAN_GET_HOME_OFFSET},
+  {"GET_RAD_FLAGS", CAN_GET_RAD_FLAGS}
 };
 std::map<std::string, uint8_t> set_cmd = {
   {"SET_TARGET_ANGLE", CAN_SET_TARGET_ANGLE},
@@ -100,14 +101,17 @@ std::map<std::string, uint8_t> set_cmd = {
   {"SET_PID_MIN_OUTPUT", CAN_SET_PID_MIN_OUTPUT},
   {"SET_PID_MAX_OUTPUT", CAN_SET_PID_MAX_OUTPUT},
   {"ASSIGN_DEVICE_ID", CAN_ASSIGN_DEVICE_ID},
-  {"PULSE_STEPPER", CAN_PULSE_STEPPER}
+  {"PULSE_STEPPER", CAN_PULSE_STEPPER},
+  {"SET_MAX_POINT", CAN_SET_MAX_POINT},
+  {"SET_RAD_FLAGS", CAN_SET_RAD_FLAGS}
 };
 std::map<std::string, uint8_t> other_cmd = {
   {"SET_HOME_OFFSET", CAN_SET_HOME_OFFSET},
   {"SAVE_TO_EEPROM", CAN_SAVE_TO_EEPROM},
   {"RELOAD_FROM_EEPROM", CAN_RELOAD_FROM_EEPROM},
   {"CALIBRATE", CAN_CALIBRATE_POS},
-  {"CANCEL_CALIBRATE", CAN_CANCEL_CALIBRATE_POS}
+  {"CANCEL_CALIBRATE", CAN_CANCEL_CALIBRATE_POS},
+  {"SET_ZERO_POINT", CAN_SET_ZERO_POINT},
 };
 
 
@@ -128,7 +132,7 @@ void response_callback(const CANraw& msg)
     }
     else
     {
-      RCLCPP_INFO(can_config->get_logger(), "Value: %d", msg.data[0]);
+      RCLCPP_INFO(can_config->get_logger(), "Value: %d", msg.data.back());
     }
     ack = true;
   }
@@ -378,6 +382,12 @@ int main(int argc, char ** argv)
         case CAN_PULSE_STEPPER:
           rad.pulse_stepper(std::stof(val_in));
           break;
+        case CAN_SET_MAX_POINT:
+          rad.set_max_point((uint8_t)std::stoi(val_in, 0, base));
+          break;
+        case CAN_SET_RAD_FLAGS:
+          rad.set_rad_flags((uint8_t)std::stoi(val_in, 0, base));
+          break;
       }
     }
     else if (get_cmd.count(in) == 1) // GET TYPE COMMAND
@@ -507,6 +517,9 @@ int main(int argc, char ** argv)
         case CAN_GET_HOME_OFFSET:
           rad.get_home_offset();
           break;
+        case CAN_GET_RAD_FLAGS:
+          rad.get_rad_flags();
+          break;
       }
     }
     else
@@ -527,6 +540,9 @@ int main(int argc, char ** argv)
           break;
         case CAN_SET_HOME_OFFSET:
           rad.set_home_offset();
+          break;
+        case CAN_SET_ZERO_POINT:
+          rad.set_zero_point();
           break;
       }
     }
