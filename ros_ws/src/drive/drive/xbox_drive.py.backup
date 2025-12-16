@@ -33,29 +33,6 @@ class XboxDrive:
         if abs(axes) < DEAD_ZONE:
             return 0.0
         return self._map(axes, -1.0, 1.0, -speed, speed)
-
-    def _map(self, value, istart, istop, ostart, ostop):
-        return ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
-    
-    def _update_speed(self, msg: Joy):
-        """Update speed based on D-pad buttons (axes 7 for up/down)"""
-        dpad_vertical = msg.axes[7] if len(msg.axes) > 7 else 0
-        
-        # D-pad up pressed (increase speed)
-        if dpad_vertical > 0.5 and self.last_dpad_up == 0:
-            self.current_speed = min(self.current_speed + SPEED_INCREMENT, MAX_SPEED)
-            return True
-        
-        # D-pad down pressed (decrease speed)
-        elif dpad_vertical < -0.5 and self.last_dpad_down == 0:
-            self.current_speed = max(self.current_speed - SPEED_INCREMENT, MIN_SPEED)
-            return True
-        
-        self.last_dpad_up = 1 if dpad_vertical > 0.5 else 0
-        self.last_dpad_down = 1 if dpad_vertical < -0.5 else 0
-        return False
-
-
 class XboxSwerveDrive(XboxDrive):
     def __init__(self, pub_cmd_vel: Publisher, node: Node):
         super().__init__()
@@ -77,9 +54,26 @@ class XboxSwerveDrive(XboxDrive):
         self.vel_msg.linear.x = self._scale_with_deadzone(x, speed)
         self.vel_msg.linear.y = self._scale_with_deadzone(y, speed)
         self.vel_msg.angular.z = self._scale_with_deadzone(z, speed)
-        self.pub_cmd_vel.publish(self.vel_msg)
+        self.pub_cmd_vel.publish(self.vel_msg)ent_speed - SPEED_INCREMENT, MIN_SPEED)
+            return True
+        
+        self.last_dpad_up = 1 if dpad_vertical > 0.5 else 0
+        self.last_dpad_down = 1 if dpad_vertical < -0.5 else 0
+        return False
 
 
+class XboxSwerveDrive(XboxDrive):
+    def __init__(self, pub_cmd_vel: Publisher):
+        self.pub_cmd_vel = pub_cmd_vel
+        self.vel_msg = Twist()
+    
+    def joy_callback(self, msg: Joy) -> None:
+        speed = TOP_SPEED*self._map(msg.axes[5], 1.0, -1.0, 1.0, TURBO_FACTOR)
+
+        x = msg.axes[1]
+        y = msg.axes[0]
+        z = msg.axes[3]
+        
 class XboxTankSteerDrive(XboxDrive):
     def __init__(self, pub_cmd_vel: Publisher, pub_rad_pulses: Publisher, node: Node):
         super().__init__()
@@ -114,12 +108,6 @@ class XboxTankSteerDrive(XboxDrive):
             rad_pulse_msg.rear_left_pulse   = 0.0
 
         self.pub_rad_pulses.publish(rad_pulse_msg)
-
-        speed = self.current_speed * self._map(msg.axes[5], 1.0, -1.0, 1.0, TURBO_FACTOR)   
-        self.vel_msg.linear.x = self._scale_with_deadzone(msg.axes[1], speed)
-        self.pub_cmd_vel.publish(self.vel_msg)
-
-
 class XboxDriveController(Node):
     def __init__(self):
         super().__init__("xbox_controller")
@@ -206,7 +194,19 @@ class XboxDriveController(Node):
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
         """
-        self.get_logger().info(instructions)
+        self.get_logger().info(instructions)_value().string_value
+        ]
+        
+        self.pub_cmd_vel = self.create_publisher(Twist, "/drive/cmd_vel", 10)
+
+        if (self.mode == DriveMode.SWERVE_DRIVE):
+            self.xbox_drive = XboxSwerveDrive(self.pub_cmd_vel)
+        elif (self.mode == DriveMode.TANK_STEER_HYBRID):
+            self.pub = self.create_publisher(SwerveModulePulse, "/drive/rad_pulses", 10)
+            self.xbox_drive = XboxTankSteerDrive(self.pub_cmd_vel, self.pub)
+
+        self.sub = self.create_subscription(
+            Joy, "/joy", self.xbox_drive.joy_callback, 10)
 
 
 def main():
