@@ -64,6 +64,77 @@
     <child link="Camera_link"/>
   </joint>
 
+  <!-- Intel RealSense D435 Camera Simulation -->
+  <!-- Camera Depth Optical Frame -->
+  <link name="camera_depth_frame"/>
+  <joint name="camera_depth_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="Camera_link"/>
+    <child link="camera_depth_frame"/>
+  </joint>
+
+  <link name="camera_depth_optical_frame"/>
+  <joint name="camera_depth_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    <parent link="camera_depth_frame"/>
+    <child link="camera_depth_optical_frame"/>
+  </joint>
+
+  <!-- Camera Color Optical Frame -->
+  <link name="camera_color_frame"/>
+  <joint name="camera_color_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="Camera_link"/>
+    <child link="camera_color_frame"/>
+  </joint>
+
+  <link name="camera_color_optical_frame"/>
+  <joint name="camera_color_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    <parent link="camera_color_frame"/>
+    <child link="camera_color_optical_frame"/>
+  </joint>
+
+  <gazebo reference="Camera_link">
+    <sensor type="depth" name="realsense_d435">
+      <always_on>1</always_on>
+      <update_rate>30.0</update_rate>
+      <visualize>true</visualize>
+      <camera name="camera">
+        <horizontal_fov>1.487</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.05</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <ros>
+          <namespace></namespace>
+          <remapping>image_raw:=camera/color/image_raw</remapping>
+          <remapping>depth/image_raw:=camera/depth/image_raw</remapping>
+          <remapping>camera_info:=camera/color/camera_info</remapping>
+          <remapping>depth/camera_info:=camera/depth/camera_info</remapping>
+          <remapping>points:=camera/depth/color/points</remapping>
+        </ros>
+        <camera_name>camera</camera_name>
+        <frame_name>camera_depth_optical_frame</frame_name>
+        <hack_baseline>0.07</hack_baseline>
+        <min_depth>0.1</min_depth>
+        <max_depth>10.0</max_depth>
+      </plugin>
+    </sensor>
+  </gazebo>
+
   <!-- Front Left (FL) Swerve Module -->
   <!-- FL Steering (Rotation) Link -->
   <link name="FL_Rot_Link">
