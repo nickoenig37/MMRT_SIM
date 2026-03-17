@@ -1,0 +1,539 @@
+<!-- Maxwell Rover Gazebo Simulation URDF with Swerve Drive -->
+<!-- Based on PROPER_Simplified Rover.SLDASM.urdf from maxwell_description -->
+<robot name="maxwell_rover">
+  
+  <!-- Base Link -->
+  <link name="base_footprint"/>
+  
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="Base_link"/>
+    <origin xyz="0 0 0.1766" rpy="0 0 0"/>
+  </joint>
+  
+  <link name="Base_link">
+    <inertial>
+      <origin xyz="-0.077588 0.0023746 -0.011224" rpy="0 0 0"/>
+      <mass value="5.82"/>
+      <inertia ixx="0.059104" ixy="-0.0044668" ixz="0.00024807"
+               iyy="0.089113" iyz="0.00079203" izz="0.13455"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/Base_link.STL" scale="1.0 1.0 1.0"/>
+      </geometry>
+      <material name="rover_blue">
+        <color rgba="0.2 0.3 0.8 1.0"/>
+      </material>
+    </visual>
+    <!-- Backup box visual in case mesh doesn't show -->
+    <visual name="backup_box">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.7 0.5 0.25"/>
+      </geometry>
+      <material name="backup_red">
+        <color rgba="0.8 0.2 0.2 0.5"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <!-- Use simple box collision - complex STL mesh has issues -->
+        <box size="0.8 0.6 0.3"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Camera Link -->
+  <link name="Camera_link">
+    <inertial>
+      <origin xyz="-0.00096131 -0.01914 0.012439" rpy="0 0 0"/>
+      <mass value="0.044752"/>
+      <inertia ixx="2.7277E-05" ixy="2.4435E-07" ixz="-1.1748E-09"
+               iyy="3.9447E-06" iyz="-2.8047E-09" izz="2.7362E-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/Camera_link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/Camera_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="Camera_joint" type="fixed">
+    <origin xyz="0.41296 0 0" rpy="0 0 0"/>
+    <parent link="Base_link"/>
+    <child link="Camera_link"/>
+  </joint>
+
+  <!-- Intel RealSense D435 Camera Simulation -->
+  <!-- Camera Depth Optical Frame -->
+  <link name="camera_depth_frame"/>
+  <joint name="camera_depth_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="Camera_link"/>
+    <child link="camera_depth_frame"/>
+  </joint>
+
+  <link name="camera_depth_optical_frame"/>
+  <joint name="camera_depth_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    <parent link="camera_depth_frame"/>
+    <child link="camera_depth_optical_frame"/>
+  </joint>
+
+  <!-- Camera Color Optical Frame -->
+  <link name="camera_color_frame"/>
+  <joint name="camera_color_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="Camera_link"/>
+    <child link="camera_color_frame"/>
+  </joint>
+
+  <link name="camera_color_optical_frame"/>
+  <joint name="camera_color_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    <parent link="camera_color_frame"/>
+    <child link="camera_color_optical_frame"/>
+  </joint>
+
+  <gazebo reference="Camera_link">
+    <sensor type="depth" name="realsense_d435">
+      <always_on>1</always_on>
+      <update_rate>30.0</update_rate>
+      <visualize>true</visualize>
+      <camera name="camera">
+        <horizontal_fov>1.487</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.05</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <ros>
+          <namespace></namespace>
+          <remapping>image_raw:=camera/color/image_raw</remapping>
+          <remapping>depth/image_raw:=camera/depth/image_raw</remapping>
+          <remapping>camera_info:=camera/color/camera_info</remapping>
+          <remapping>depth/camera_info:=camera/depth/camera_info</remapping>
+          <remapping>points:=camera/depth/color/points</remapping>
+        </ros>
+        <camera_name>camera</camera_name>
+        <frame_name>camera_depth_optical_frame</frame_name>
+        <hack_baseline>0.07</hack_baseline>
+        <min_depth>0.1</min_depth>
+        <max_depth>10.0</max_depth>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Front Left (FL) Swerve Module -->
+  <!-- FL Steering (Rotation) Link -->
+  <link name="FL_Rot_Link">
+    <inertial>
+      <origin xyz="-0.0021237 0.040788 -0.062966" rpy="0 0 0"/>
+      <mass value="0.48686"/>
+      <inertia ixx="0.00055499" ixy="-5.8532E-09" ixz="-3.1728E-10"
+               iyy="0.00077092" iyz="-4.198E-07" izz="0.00057328"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/FL_Rot_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/FL_Rot_Link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="FL_Rot_Joint" type="revolute">
+    <origin xyz="0.4891 0.30651 -0.1766" rpy="0 0 0"/>
+    <parent link="Base_link"/>
+    <child link="FL_Rot_Link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.094" upper="2.094" effort="100" velocity="3.0"/>
+    <dynamics damping="0.1" friction="0.1"/>
+  </joint>
+
+  <!-- FL Drive (Wheel) Link -->
+  <link name="FL_Link">
+    <inertial>
+      <origin xyz="2.6143E-06 -0.030977 -3.1583E-06" rpy="0 0 0"/>
+      <mass value="0.62031"/>
+      <inertia ixx="0.002842" ixy="6.0035E-09" ixz="-2.5814E-07"
+               iyy="0.0051144" iyz="3.5604E-09" izz="0.0028421"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/FL_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.127" length="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="FL_Joint" type="continuous">
+    <origin xyz="-0.0021234 0.03175 -0.16793" rpy="0 0 0"/>
+    <parent link="FL_Rot_Link"/>
+    <child link="FL_Link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="0.05" friction="0.05"/>
+  </joint>
+
+  <!-- Front Right (FR) Swerve Module -->
+  <!-- FR Steering (Rotation) Link -->
+  <link name="FR_Rot_Link">
+    <inertial>
+      <origin xyz="-0.0021231 -0.040788 -0.062966" rpy="0 0 0"/>
+      <mass value="0.48686"/>
+      <inertia ixx="0.00055499" ixy="-5.8532E-09" ixz="3.1728E-10"
+               iyy="0.00077092" iyz="4.198E-07" izz="0.00057328"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/FR_Rot_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/FR_Rot_Link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="FR_Rot_Joint" type="revolute">
+    <origin xyz="0.4891 -0.30651 -0.1766" rpy="0 0 0"/>
+    <parent link="Base_link"/>
+    <child link="FR_Rot_Link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.094" upper="2.094" effort="100" velocity="3.0"/>
+    <dynamics damping="0.1" friction="0.1"/>
+  </joint>
+
+  <!-- FR Drive (Wheel) Link -->
+  <link name="FR_Link">
+    <inertial>
+      <origin xyz="-3.783E-06 0.030977 1.5805E-06" rpy="0 0 0"/>
+      <mass value="0.62031"/>
+      <inertia ixx="0.0028422" ixy="-1.6564E-09" ixz="-1.9161E-07"
+               iyy="0.0051144" iyz="-6.7805E-09" izz="0.0028418"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/FR_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.127" length="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="FR_Joint" type="continuous">
+    <origin xyz="-0.0021234 -0.03175 -0.16793" rpy="0 0 0"/>
+    <parent link="FR_Rot_Link"/>
+    <child link="FR_Link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="0.05" friction="0.05"/>
+  </joint>
+
+  <!-- Rear Right (BR) Swerve Module -->
+  <!-- BR Steering (Rotation) Link -->
+  <link name="BR_Rot_Link">
+    <inertial>
+      <origin xyz="0.0021237 -0.040788 -0.062966" rpy="0 0 0"/>
+      <mass value="0.48686"/>
+      <inertia ixx="0.00055499" ixy="-5.8532E-09" ixz="3.1728E-10"
+               iyy="0.00077092" iyz="4.198E-07" izz="0.00057328"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/BR_Rot_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/BR_Rot_Link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="BR_Rot_Joint" type="revolute">
+    <origin xyz="-0.4891 -0.30651 -0.1766" rpy="0 0 0"/>
+    <parent link="Base_link"/>
+    <child link="BR_Rot_Link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.094" upper="2.094" effort="100" velocity="3.0"/>
+    <dynamics damping="0.1" friction="0.1"/>
+  </joint>
+
+  <!-- BR Drive (Wheel) Link -->
+  <link name="BR_Link">
+    <inertial>
+      <origin xyz="4.0754E-06 0.030977 -2.097E-07" rpy="0 0 0"/>
+      <mass value="0.62031"/>
+      <inertia ixx="0.0028423" ixy="-7.4835E-10" ixz="-3.4303E-08"
+               iyy="0.0051144" iyz="6.9063E-09" izz="0.0028418"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/BR_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.127" length="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="BR_Joint" type="continuous">
+    <origin xyz="0.0021234 -0.03175 -0.16793" rpy="0 0 0"/>
+    <parent link="BR_Rot_Link"/>
+    <child link="BR_Link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="0.05" friction="0.05"/>
+  </joint>
+
+  <!-- Rear Left (BL) Swerve Module -->
+  <!-- BL Steering (Rotation) Link -->
+  <link name="BL_Rot_Link">
+    <inertial>
+      <origin xyz="0.0021231 0.040788 -0.062966" rpy="0 0 0"/>
+      <mass value="0.48686"/>
+      <inertia ixx="0.00055499" ixy="-5.8532E-09" ixz="-3.1728E-10"
+               iyy="0.00077092" iyz="-4.198E-07" izz="0.00057328"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/BL_Rot_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/BL_Rot_Link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="BL_Rot_Joint" type="revolute">
+    <origin xyz="-0.4891 0.30651 -0.1766" rpy="0 0 0"/>
+    <parent link="Base_link"/>
+    <child link="BL_Rot_Link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.094" upper="2.094" effort="100" velocity="3.0"/>
+    <dynamics damping="0.1" friction="0.1"/>
+  </joint>
+
+  <!-- BL Drive (Wheel) Link -->
+  <link name="BL_Link">
+    <inertial>
+      <origin xyz="7.6685E-07 -0.030977 -4.0081E-06" rpy="0 0 0"/>
+      <mass value="0.62031"/>
+      <inertia ixx="0.0028418" ixy="6.9765E-09" ixz="-1.0326E-07"
+               iyy="0.0051144" iyz="2.1758E-10" izz="0.0028423"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://maxwell_description/meshes/BL_Link.STL"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.127" length="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="BL_Joint" type="continuous">
+    <origin xyz="0.0021234 0.03175 -0.16793" rpy="0 0 0"/>
+    <parent link="BL_Rot_Link"/>
+    <child link="BL_Link"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="0.05" friction="0.05"/>
+  </joint>
+
+  <!-- Gazebo-specific properties -->
+  <!-- Add friction to all wheels for better traction -->
+  <gazebo reference="FL_Link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="FR_Link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="BL_Link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="BR_Link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="Base_link">
+    <material>Gazebo/Blue</material>
+    <gravity>true</gravity>
+    <self_collide>false</self_collide>
+    <kinematic>false</kinematic>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+  </gazebo>
+
+  <!-- ROS2 Control Plugin for Gazebo -->
+  <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <parameters>CONTROLLERS_FILE_PATH</parameters>
+    </plugin>
+  </gazebo>
+
+  <!-- ROS2 Control Hardware Interface -->
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+
+    <!-- FL Steering Joint -->
+    <joint name="FL_Rot_Joint">
+      <command_interface name="position">
+        <param name="min">-2.094</param>
+        <param name="max">2.094</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- FL Drive Joint -->
+    <joint name="FL_Joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- FR Steering Joint -->
+    <joint name="FR_Rot_Joint">
+      <command_interface name="position">
+        <param name="min">-2.094</param>
+        <param name="max">2.094</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- FR Drive Joint -->
+    <joint name="FR_Joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- BL Steering Joint -->
+    <joint name="BL_Rot_Joint">
+      <command_interface name="position">
+        <param name="min">-2.094</param>
+        <param name="max">2.094</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- BL Drive Joint -->
+    <joint name="BL_Joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- BR Steering Joint -->
+    <joint name="BR_Rot_Joint">
+      <command_interface name="position">
+        <param name="min">-2.094</param>
+        <param name="max">2.094</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- BR Drive Joint -->
+    <joint name="BR_Joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+  </ros2_control>
+
+</robot>
