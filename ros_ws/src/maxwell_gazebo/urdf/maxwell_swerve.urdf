@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Maxwell Rover Gazebo Simulation URDF with Swerve Drive -->
 <!-- Based on PROPER_Simplified Rover.SLDASM.urdf from maxwell_description -->
 <robot name="maxwell_rover">
@@ -23,14 +24,15 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/Base_link.STL"/>
       </geometry>
-      <material name="blue">
+      <material name="">
         <color rgba="0.79216 0.81961 0.93333 1"/>
       </material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://maxwell_description/meshes/Base_link.STL"/>
+        <!-- Use simple box collision - complex STL mesh has issues -->
+        <box size="0.8 0.6 0.3"/>
       </geometry>
     </collision>
   </link>
@@ -48,7 +50,9 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/Camera_link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -149,7 +153,9 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/FL_Rot_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -181,12 +187,14 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/FL_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://maxwell_description/meshes/FL_Link.STL"/>
+        <cylinder radius="0.127" length="0.1"/>
       </geometry>
     </collision>
   </link>
@@ -213,10 +221,12 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/FR_Rot_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
         <mesh filename="package://maxwell_description/meshes/FR_Rot_Link.STL"/>
       </geometry>
@@ -245,12 +255,14 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/FR_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://maxwell_description/meshes/FR_Link.STL"/>
+        <cylinder radius="0.127" length="0.1"/>
       </geometry>
     </collision>
   </link>
@@ -277,10 +289,12 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/BR_Rot_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
         <mesh filename="package://maxwell_description/meshes/BR_Rot_Link.STL"/>
       </geometry>
@@ -309,12 +323,14 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/BR_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://maxwell_description/meshes/BR_Link.STL"/>
+        <cylinder radius="0.127" length="0.1"/>
       </geometry>
     </collision>
   </link>
@@ -341,10 +357,12 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/BL_Rot_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
         <mesh filename="package://maxwell_description/meshes/BL_Rot_Link.STL"/>
       </geometry>
@@ -373,12 +391,14 @@
       <geometry>
         <mesh filename="package://maxwell_description/meshes/BL_Link.STL"/>
       </geometry>
-      <material name="blue"/>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://maxwell_description/meshes/BL_Link.STL"/>
+        <cylinder radius="0.127" length="0.1"/>
       </geometry>
     </collision>
   </link>
@@ -435,6 +455,11 @@
 
   <gazebo reference="Base_link">
     <material>Gazebo/Blue</material>
+    <gravity>true</gravity>
+    <self_collide>false</self_collide>
+    <kinematic>false</kinematic>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
   </gazebo>
 
   <!-- ROS2 Control Plugin for Gazebo -->
