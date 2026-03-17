@@ -37,7 +37,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     x_pose = LaunchConfiguration('x_pose', default='0.0')
     y_pose = LaunchConfiguration('y_pose', default='0.0')
-    z_pose = LaunchConfiguration('z_pose', default='0.3')
+    z_pose = LaunchConfiguration('z_pose', default='2.5')
     drive_mode = LaunchConfiguration('drive_mode', default='SWERVE_DRIVE')
     
     # Declare launch arguments
@@ -61,7 +61,7 @@ def generate_launch_description():
     
     declare_z_position_cmd = DeclareLaunchArgument(
         'z_pose',
-        default_value='0.3',
+        default_value='2.5',
         description='Z position to spawn the robot (height above ground)'
     )
     
@@ -71,24 +71,54 @@ def generate_launch_description():
         description='Drive mode: SWERVE_DRIVE or TANK_STEER_HYBRID'
     )
     
-    # Set GAZEBO_MODEL_PATH
-    set_gazebo_model_path = SetEnvironmentVariable(
-        name='GAZEBO_MODEL_PATH',
-        value=os.path.join(pkg_maxwell_description, '..')
+    # World file argument
+    world_name = LaunchConfiguration('world', default='marsyard2020')
+    declare_world_cmd = DeclareLaunchArgument(
+        'world',
+        default_value='marsyard2020',
+        description='World to load: empty, marsyard2020, mars_rough_terrain, rocky_hills, obstacle_course'
     )
     
-    # Start Gazebo
+    # Build world file path
+    world_file_path = PathJoinSubstitution([
+        pkg_maxwell_gazebo,
+        'worlds',
+        [world_name, '.world']
+    ])
+    
+    # Set GAZEBO_MODEL_PATH to include:
+    # 1. maxwell_gazebo/models (for world terrain models)
+    # 2. ROS2 share directory (parent of maxwell_description for mesh access)
+    maxwell_gazebo_models = os.path.join(pkg_maxwell_gazebo, 'models')
+    ros_share_dir = os.path.join(pkg_maxwell_description, '..')  # Parent directory of maxwell_description
+    
+    gazebo_model_path = os.environ.get('GAZEBO_MODEL_PATH', '')
+    models_path = maxwell_gazebo_models + ':' + ros_share_dir
+    if gazebo_model_path:
+        models_path = models_path + ':' + gazebo_model_path
+    
+    set_gazebo_model_path = SetEnvironmentVariable(
+        name='GAZEBO_MODEL_PATH',
+        value=models_path
+    )
+    
+    # Start Gazebo with selected world
     start_gazebo_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(world_launch_file),
         launch_arguments={
             'verbose': 'false',
-            'pause': 'false'
+            'pause': 'false',
+            'world': world_file_path
         }.items()
     )
     
     # Read URDF file
     with open(urdf_file_path, 'r') as urdf_file:
         robot_description_content = urdf_file.read()
+    
+    # Remove XML declaration to avoid spawn_entity issues
+    if robot_description_content.startswith('<?xml'):
+        robot_description_content = robot_description_content.split('?>', 1)[1].strip()
     
     # Replace controller file path placeholder
     robot_description_content = robot_description_content.replace(
@@ -233,11 +263,17 @@ def generate_launch_description():
     ld.add_action(declare_y_position_cmd)
     ld.add_action(declare_z_position_cmd)
     ld.add_action(declare_drive_mode_cmd)
+    ld.add_action(declare_world_cmd)
     
-    # Start Gazebo and spawn robot
+    # Start Gazebo and robot state publisher
     ld.add_action(start_gazebo_cmd)
     ld.add_action(robot_state_publisher_cmd)
-    ld.add_action(spawn_entity_cmd)
+    
+    # Spawn robot after 5 second delay
+    ld.add_action(TimerAction(
+        period=5.0,
+        actions=[spawn_entity_cmd]
+    ))
     
     # Load controllers after robot is spawned (with delay)
     ld.add_action(TimerAction(
