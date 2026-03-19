@@ -271,18 +271,18 @@ def generate_launch_description():
     
     # Spawn robot after 5 second delay
     ld.add_action(TimerAction(
-        period=5.0,
+        period=4.0,
         actions=[spawn_entity_cmd]
     ))
     
     # Load controllers after robot is spawned (with delay)
     ld.add_action(TimerAction(
-        period=5.0,
+        period=4.0,
         actions=[load_joint_state_broadcaster_cmd]
     ))
     
     ld.add_action(TimerAction(
-        period=6.0,
+        period=7.0,
         actions=[
             load_fl_steer_controller_cmd,
             load_fr_steer_controller_cmd,

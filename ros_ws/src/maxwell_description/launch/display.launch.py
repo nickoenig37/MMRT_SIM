@@ -11,7 +11,7 @@ import xacro
 
 def generate_launch_description():
 
-    pkg_robot_description = get_package_share_path("robot_description")
+    pkg_robot_description = get_package_share_path("arm_robot_description")
     model_path = pkg_robot_description / "urdf/arm.urdf"
     rviz_config_path = pkg_robot_description / "config/urdf.rviz"
 
