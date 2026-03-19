@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="PROPER_Simplified Rover.SLDASM">
+  <link
+    name="Base_link">
+    <inertial>
+      <origin
+        xyz="-0.077588 0.0023746 -0.011224"
+        rpy="0 0 0" />
+      <mass
+        value="5.82" />
+      <inertia
+        ixx="0.059104"
+        ixy="-0.0044668"
+        ixz="0.00024807"
+        iyy="0.089113"
+        iyz="0.00079203"
+        izz="0.13455" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/Base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/Base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Camera_link">
+    <inertial>
+      <origin
+        xyz="-0.00096131 -0.01914 0.012439"
+        rpy="0 0 0" />
+      <mass
+        value="0.044752" />
+      <inertia
+        ixx="2.7277E-05"
+        ixy="2.4435E-07"
+        ixz="-1.1748E-09"
+        iyy="3.9447E-06"
+        iyz="-2.8047E-09"
+        izz="2.7362E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/Camera_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/Camera_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Camera_joint"
+    type="continuous">
+    <origin
+      xyz="0.41296 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="Base_link" />
+    <child
+      link="Camera_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="FL_Rot_Link">
+    <inertial>
+      <origin
+        xyz="-0.0021237 0.040788 -0.062966"
+        rpy="0 0 0" />
+      <mass
+        value="0.48686" />
+      <inertia
+        ixx="0.00055499"
+        ixy="-5.8532E-09"
+        ixz="-3.1728E-10"
+        iyy="0.00077092"
+        iyz="-4.198E-07"
+        izz="0.00057328" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FL_Rot_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FL_Rot_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FL_Rot_Joint"
+    type="revolute">
+    <origin
+      xyz="0.4891 0.30651 -0.1766"
+      rpy="0 0 0" />
+    <parent
+      link="Base_link" />
+    <child
+      link="FL_Rot_Link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="FL_Link">
+    <inertial>
+      <origin
+        xyz="2.6143E-06 -0.030977 -3.1583E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.62031" />
+      <inertia
+        ixx="0.002842"
+        ixy="6.0035E-09"
+        ixz="-2.5814E-07"
+        iyy="0.0051144"
+        iyz="3.5604E-09"
+        izz="0.0028421" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FL_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FL_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FL_Joint"
+    type="continuous">
+    <origin
+      xyz="-0.0021234 0.03175 -0.16793"
+      rpy="0 0 0" />
+    <parent
+      link="FL_Rot_Link" />
+    <child
+      link="FL_Link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="FR_Rot_Link">
+    <inertial>
+      <origin
+        xyz="-0.0021231 -0.040788 -0.062966"
+        rpy="0 0 0" />
+      <mass
+        value="0.48686" />
+      <inertia
+        ixx="0.00055499"
+        ixy="-5.8532E-09"
+        ixz="3.1728E-10"
+        iyy="0.00077092"
+        iyz="4.198E-07"
+        izz="0.00057328" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FR_Rot_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FR_Rot_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FR_Rot_Joint"
+    type="revolute">
+    <origin
+      xyz="0.4891 -0.30651 -0.1766"
+      rpy="0 0 0" />
+    <parent
+      link="Base_link" />
+    <child
+      link="FR_Rot_Link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="FR_Link">
+    <inertial>
+      <origin
+        xyz="-3.783E-06 0.030977 1.5805E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.62031" />
+      <inertia
+        ixx="0.0028422"
+        ixy="-1.6564E-09"
+        ixz="-1.9161E-07"
+        iyy="0.0051144"
+        iyz="-6.7805E-09"
+        izz="0.0028418" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FR_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/FR_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="FR_Joint"
+    type="continuous">
+    <origin
+      xyz="-0.0021234 -0.03175 -0.16793"
+      rpy="0 0 0" />
+    <parent
+      link="FR_Rot_Link" />
+    <child
+      link="FR_Link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="BR_Rot_Link">
+    <inertial>
+      <origin
+        xyz="0.0021237 -0.040788 -0.062966"
+        rpy="0 0 0" />
+      <mass
+        value="0.48686" />
+      <inertia
+        ixx="0.00055499"
+        ixy="-5.8532E-09"
+        ixz="3.1728E-10"
+        iyy="0.00077092"
+        iyz="4.198E-07"
+        izz="0.00057328" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BR_Rot_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BR_Rot_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BR_Rot_Joint"
+    type="revolute">
+    <origin
+      xyz="-0.4891 -0.30651 -0.1766"
+      rpy="0 0 0" />
+    <parent
+      link="Base_link" />
+    <child
+      link="BR_Rot_Link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="BR_Link">
+    <inertial>
+      <origin
+        xyz="4.0754E-06 0.030977 -2.097E-07"
+        rpy="0 0 0" />
+      <mass
+        value="0.62031" />
+      <inertia
+        ixx="0.0028423"
+        ixy="-7.4835E-10"
+        ixz="-3.4303E-08"
+        iyy="0.0051144"
+        iyz="6.9063E-09"
+        izz="0.0028418" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BR_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BR_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BR_Joint"
+    type="continuous">
+    <origin
+      xyz="0.0021234 -0.03175 -0.16793"
+      rpy="0 0 0" />
+    <parent
+      link="BR_Rot_Link" />
+    <child
+      link="BR_Link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="BL_Rot_Link">
+    <inertial>
+      <origin
+        xyz="0.0021231 0.040788 -0.062966"
+        rpy="0 0 0" />
+      <mass
+        value="0.48686" />
+      <inertia
+        ixx="0.00055499"
+        ixy="-5.8532E-09"
+        ixz="-3.1728E-10"
+        iyy="0.00077092"
+        iyz="-4.198E-07"
+        izz="0.00057328" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BL_Rot_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BL_Rot_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BL_Rot_Joint"
+    type="revolute">
+    <origin
+      xyz="-0.4891 0.30651 -0.1766"
+      rpy="0 0 0" />
+    <parent
+      link="Base_link" />
+    <child
+      link="BL_Rot_Link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="BL_Link">
+    <inertial>
+      <origin
+        xyz="7.6685E-07 -0.030977 -4.0081E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.62031" />
+      <inertia
+        ixx="0.0028418"
+        ixy="6.9765E-09"
+        ixz="-1.0326E-07"
+        iyy="0.0051144"
+        iyz="2.1758E-10"
+        izz="0.0028423" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BL_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://maxwell_description/meshes/BL_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BL_Joint"
+    type="continuous">
+    <origin
+      xyz="0.0021234 0.03175 -0.16793"
+      rpy="0 0 0" />
+    <parent
+      link="BL_Rot_Link" />
+    <child
+      link="BL_Link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+</robot>

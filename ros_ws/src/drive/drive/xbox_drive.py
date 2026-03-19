@@ -13,10 +13,18 @@ from custom_interfaces.msg import SwerveModulePulse
 from .drive_controller import DriveMode
 
 DEAD_ZONE = 0.05
-TOP_SPEED = 0.5
+TOP_SPEED = 1.0  # Increased from 0.5 m/s to 1.0 m/s
 TURBO_FACTOR = 3
+SPEED_INCREMENT = 0.1  # Amount to increase/decrease speed per button press
+MIN_SPEED = 0.2  # Minimum allowed speed
+MAX_SPEED = 3.0  # Maximum allowed speed
 
 class XboxDrive:
+    def __init__(self):
+        self.current_speed = TOP_SPEED
+        self.last_dpad_up = 0
+        self.last_dpad_down = 0
+    
     # Joystick callback function
     def joy_callback(self, msg: Joy) -> None:
         pass
@@ -28,34 +36,64 @@ class XboxDrive:
 
     def _map(self, value, istart, istop, ostart, ostop):
         return ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
+    
+    def _update_speed(self, msg: Joy):
+        """Update speed based on D-pad buttons (axes 7 for up/down)"""
+        dpad_vertical = msg.axes[7] if len(msg.axes) > 7 else 0
+        
+        # D-pad up pressed (increase speed)
+        if dpad_vertical > 0.5 and self.last_dpad_up == 0:
+            self.current_speed = min(self.current_speed + SPEED_INCREMENT, MAX_SPEED)
+            return True
+        
+        # D-pad down pressed (decrease speed)
+        elif dpad_vertical < -0.5 and self.last_dpad_down == 0:
+            self.current_speed = max(self.current_speed - SPEED_INCREMENT, MIN_SPEED)
+            return True
+        
+        self.last_dpad_up = 1 if dpad_vertical > 0.5 else 0
+        self.last_dpad_down = 1 if dpad_vertical < -0.5 else 0
+        return False
 
 
 class XboxSwerveDrive(XboxDrive):
-    def __init__(self, pub_cmd_vel: Publisher):
+    def __init__(self, pub_cmd_vel: Publisher, node: Node):
+        super().__init__()
         self.pub_cmd_vel = pub_cmd_vel
         self.vel_msg = Twist()
+        self.node = node
     
     def joy_callback(self, msg: Joy) -> None:
-        speed = TOP_SPEED*self._map(msg.axes[5], 1.0, -1.0, 1.0, TURBO_FACTOR)
+        # Check for speed changes
+        if self._update_speed(msg):
+            self.node.get_logger().info(f'Speed adjusted to: {self.current_speed:.2f} m/s')
+        
+        speed = self.current_speed * self._map(msg.axes[5], 1.0, -1.0, 1.0, TURBO_FACTOR)
 
         x = msg.axes[1]
         y = msg.axes[0]
         z = msg.axes[3]
         
-        self.vel_msg.linear.x = self._scale_with_deadzone(x,speed)
-        self.vel_msg.linear.y = self._scale_with_deadzone(y,speed)
-        self.vel_msg.angular.z = self._scale_with_deadzone(z,speed)
+        self.vel_msg.linear.x = self._scale_with_deadzone(x, speed)
+        self.vel_msg.linear.y = self._scale_with_deadzone(y, speed)
+        self.vel_msg.angular.z = self._scale_with_deadzone(z, speed)
         self.pub_cmd_vel.publish(self.vel_msg)
 
 
 class XboxTankSteerDrive(XboxDrive):
-    def __init__(self, pub_cmd_vel: Publisher, pub_rad_pulses: Publisher):
+    def __init__(self, pub_cmd_vel: Publisher, pub_rad_pulses: Publisher, node: Node):
+        super().__init__()
         self.pub_cmd_vel = pub_cmd_vel
         self.pub_rad_pulses = pub_rad_pulses
         self.vel_msg = Twist()
         self.STEPS = 75.0
+        self.node = node
     
     def joy_callback(self, msg: Joy) -> None:
+        # Check for speed changes
+        if self._update_speed(msg):
+            self.node.get_logger().info(f'Speed adjusted to: {self.current_speed:.2f} m/s')
+        
         rad_pulse_msg  = SwerveModulePulse()
 
         signnum = (lambda n: (n > 0) - (n < 0))
@@ -77,8 +115,8 @@ class XboxTankSteerDrive(XboxDrive):
 
         self.pub_rad_pulses.publish(rad_pulse_msg)
 
-        speed = TOP_SPEED*self._map(msg.axes[5], 1.0, -1.0, 1.0, TURBO_FACTOR)   
-        self.vel_msg.linear.x = self._scale_with_deadzone(msg.axes[1],speed)
+        speed = self.current_speed * self._map(msg.axes[5], 1.0, -1.0, 1.0, TURBO_FACTOR)   
+        self.vel_msg.linear.x = self._scale_with_deadzone(msg.axes[1], speed)
         self.pub_cmd_vel.publish(self.vel_msg)
 
 
@@ -100,13 +138,75 @@ class XboxDriveController(Node):
         self.pub_cmd_vel = self.create_publisher(Twist, "/drive/cmd_vel", 10)
 
         if (self.mode == DriveMode.SWERVE_DRIVE):
-            self.xbox_drive = XboxSwerveDrive(self.pub_cmd_vel)
+            self.xbox_drive = XboxSwerveDrive(self.pub_cmd_vel, self)
         elif (self.mode == DriveMode.TANK_STEER_HYBRID):
             self.pub = self.create_publisher(SwerveModulePulse, "/drive/rad_pulses", 10)
-            self.xbox_drive = XboxTankSteerDrive(self.pub_cmd_vel, self.pub)
+            self.xbox_drive = XboxTankSteerDrive(self.pub_cmd_vel, self.pub, self)
 
         self.sub = self.create_subscription(
             Joy, "/joy", self.xbox_drive.joy_callback, 10)
+        
+        # Print controller instructions on startup
+        self._print_controller_instructions()
+    
+    def _print_controller_instructions(self):
+        """Print ASCII art controller instructions"""
+        instructions = """
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                        MAXWELL ROVER - XBOX CONTROLLER                        ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║          (LB)                          (RB)                                   ║
+║          (LT)                 D( . )X  (RT)                                   ║
+║        ┌─────┐                ────────────────┐                              ║
+║       /   ▲   \\              /        (Y)     \\                             ║
+║      │  ◄   ► │             │  (X)      (B)   │                             ║
+║      │    ▼   │             │      (A)        │                             ║
+║       \\_____/               \\_______   _______/                             ║
+║         (L3)                   VIBE    (R3)                                   ║
+║                                                                               ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║  CONTROLS:                                                                    ║
+║  ────────────────────────────────────────────────────────────────────────     ║
+║  Left Stick       : Forward/Backward & Strafe Left/Right                     ║
+║  Right Stick      : Rotate Left/Right                                        ║
+║  RT (Right Trigger): Turbo Mode (3x speed multiplier)                        ║
+║                                                                               ║
+║  D-PAD UP         : Increase Base Speed (+0.1 m/s)                           ║
+║  D-PAD DOWN       : Decrease Base Speed (-0.1 m/s)                           ║
+║                                                                               ║
+║  TANK STEER MODE ONLY:                                                       ║
+║  LB               : Rear-Left Steering Override                              ║
+║  RB               : Rear-Right Steering Override                             ║
+║                                                                               ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║  BUTTON MAPPING:                                                              ║
+║  ────────────────────────────────────────────────────────────────────────     ║
+║  BUTTON    Value  │  AXIS           Value                                    ║
+║  ──────────────────┼──────────────────────                                   ║
+║  A          0     │  Left Horiz.     0                                       ║
+║  B          1     │  Left Vert.      1                                       ║
+║  X          2     │  Right Horiz.    3                                       ║
+║  Y          3     │  Right Vert.     4                                       ║
+║  LB         4     │  LT              2                                       ║
+║  RB         5     │  RT              5                                       ║
+║  BACK       6     │  D-pad Horiz.    6                                       ║
+║  START      7     │  D-pad Vert.     7                                       ║
+║                                                                               ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║  SPEED SETTINGS:                                                              ║
+║  ────────────────────────────────────────────────────────────────────────     ║
+║  Base Speed       : 1.0 m/s (adjustable with D-pad)                          ║
+║  Min Speed        : 0.2 m/s                                                  ║
+║  Max Speed        : 3.0 m/s                                                  ║
+║  Turbo Multiplier : 3x                                                       ║
+║  Speed Increment  : 0.1 m/s per button press                                 ║
+║                                                                               ║
+║  Current Mode     : """ + self.mode.name + " " * (45 - len(self.mode.name)) + """║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+        """
+        self.get_logger().info(instructions)
 
 
 def main():

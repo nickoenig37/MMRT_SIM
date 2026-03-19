@@ -1,0 +1,91 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    # Joint State Broadcaster - publishes all joint states
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # Individual position controllers for steering joints
+    fl_steer_position_controller:
+      type: forward_command_controller/ForwardCommandController
+      
+    fr_steer_position_controller:
+      type: forward_command_controller/ForwardCommandController
+      
+    bl_steer_position_controller:
+      type: forward_command_controller/ForwardCommandController
+      
+    br_steer_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+    # Individual velocity controllers for drive wheels
+    fl_drive_velocity_controller:
+      type: forward_command_controller/ForwardCommandController
+      
+    fr_drive_velocity_controller:
+      type: forward_command_controller/ForwardCommandController
+      
+    bl_drive_velocity_controller:
+      type: forward_command_controller/ForwardCommandController
+      
+    br_drive_velocity_controller:
+      type: forward_command_controller/ForwardCommandController
+
+
+# FL Steering Position Controller
+fl_steer_position_controller:
+  ros__parameters:
+    joints:
+      - FL_Rot_Joint
+    interface_name: position
+
+# FR Steering Position Controller
+fr_steer_position_controller:
+  ros__parameters:
+    joints:
+      - FR_Rot_Joint
+    interface_name: position
+
+# BL Steering Position Controller
+bl_steer_position_controller:
+  ros__parameters:
+    joints:
+      - BL_Rot_Joint
+    interface_name: position
+
+# BR Steering Position Controller
+br_steer_position_controller:
+  ros__parameters:
+    joints:
+      - BR_Rot_Joint
+    interface_name: position
+
+
+# FL Drive Velocity Controller
+fl_drive_velocity_controller:
+  ros__parameters:
+    joints:
+      - FL_Joint
+    interface_name: velocity
+
+# FR Drive Velocity Controller
+fr_drive_velocity_controller:
+  ros__parameters:
+    joints:
+      - FR_Joint
+    interface_name: velocity
+
+# BL Drive Velocity Controller
+bl_drive_velocity_controller:
+  ros__parameters:
+    joints:
+      - BL_Joint
+    interface_name: velocity
+
+# BR Drive Velocity Controller
+br_drive_velocity_controller:
+  ros__parameters:
+    joints:
+      - BR_Joint
+    interface_name: velocity

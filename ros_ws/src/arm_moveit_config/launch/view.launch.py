@@ -49,10 +49,10 @@ def generate_launch_description():
         ],
         on_stderr="ignore"
     )
-    robot_description = {"robot_description": robot_description_content}
+    robot_description = {"arm_robot_description": robot_description_content}
 
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("robot_description"), "config", "urdf.rviz"]
+        [FindPackageShare("arm_robot_description"), "config", "urdf.rviz"]
     )
 
     joint_state_publisher_node = Node(
