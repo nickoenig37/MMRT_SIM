@@ -26,7 +26,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/Base_link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/Base_link.STL" />
       </geometry>
       <material
         name="">
@@ -40,7 +40,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/Base_link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/Base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -66,7 +66,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/Camera_link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/Camera_link.STL" />
       </geometry>
       <material
         name="">
@@ -80,7 +80,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/Camera_link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/Camera_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -119,7 +119,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FL_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FL_Rot_Link.STL" />
       </geometry>
       <material
         name="">
@@ -133,7 +133,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FL_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FL_Rot_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -177,7 +177,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FL_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FL_Link.STL" />
       </geometry>
       <material
         name="">
@@ -191,7 +191,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FL_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FL_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -230,7 +230,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FR_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FR_Rot_Link.STL" />
       </geometry>
       <material
         name="">
@@ -244,7 +244,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FR_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FR_Rot_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -288,7 +288,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FR_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FR_Link.STL" />
       </geometry>
       <material
         name="">
@@ -302,7 +302,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/FR_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/FR_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -341,7 +341,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BR_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BR_Rot_Link.STL" />
       </geometry>
       <material
         name="">
@@ -355,7 +355,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BR_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BR_Rot_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -399,7 +399,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BR_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BR_Link.STL" />
       </geometry>
       <material
         name="">
@@ -413,7 +413,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BR_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BR_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -452,7 +452,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BL_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BL_Rot_Link.STL" />
       </geometry>
       <material
         name="">
@@ -466,7 +466,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BL_Rot_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BL_Rot_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -510,7 +510,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BL_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BL_Link.STL" />
       </geometry>
       <material
         name="">
@@ -524,7 +524,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://maxwell_description/meshes/BL_Link.STL" />
+          filename="/home/koener/Documents/MMRT_2025_Autonomy/ros2_ws/src/maxwell/ros_ws/src/maxwell_description/meshes/BL_Link.STL" />
       </geometry>
     </collision>
   </link>
