@@ -32,6 +32,7 @@ def generate_launch_description():
     world_launch_file = os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py')
     urdf_file_path = os.path.join(pkg_maxwell_gazebo, 'urdf', 'maxwell_swerve.urdf')
     controllers_yaml = os.path.join(pkg_maxwell_gazebo, 'config', 'swerve_controllers.yaml')
+    rviz_config_file = os.path.join(pkg_maxwell_gazebo, 'config', 'maxwell_sim_rviz2_setup.rviz')
     
     # Launch configuration variables
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
@@ -252,6 +253,16 @@ def generate_launch_description():
         parameters=[{'use_sim_time': use_sim_time}],
         output='screen'
     )
+
+    # RViz2 configured for Maxwell simulation
+    rviz2_cmd = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_config_file],
+        parameters=[{'use_sim_time': use_sim_time}],
+        output='screen'
+    )
     
     # Create the launch description
     ld = LaunchDescription()
@@ -303,6 +314,11 @@ def generate_launch_description():
             heartbeat_cmd,
             swerve_sim_bridge_cmd
         ]
+    ))
+
+    ld.add_action(TimerAction(
+        period=3.0,
+        actions=[rviz2_cmd]
     ))
     
     return ld
