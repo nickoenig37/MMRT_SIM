@@ -1,0 +1,79 @@
+# Nav2 Controller Configuration for Maxwell Swerve Drive
+
+# Regulated Pure Pursuit Controller - optimized for swerve drive
+FollowPath:
+  ros__parameters:
+    plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPursPursuitController"
+    # Desired velocity
+    desired_linear_vel: 0.5
+    # Lookahead parameters
+    lookahead_dist: 0.6
+    min_lookahead_dist: 0.3
+    max_lookahead_dist: 0.9
+    lookahead_time: 1.5
+    # Angular velocity for rotation to heading
+    rotate_to_heading_angular_vel: 1.8
+    # Transform tolerance
+    transform_tolerance: 0.1
+    # Use velocity scaling for lookahead distance
+    use_velocity_scaled_lookahead_dist: false
+    # Approach velocity (when near goal)
+    min_approach_linear_velocity: 0.05
+    approach_velocity_scaling_dist: 0.6
+    # Collision avoidance
+    use_collision_detection: true
+    max_allowed_time_error_to_skip_extrapolation: 0.1
+    # Cost function weights
+    cost_scaling_factor: 1.0
+    inflation_cost_scaling_factor: 3.0
+
+# DWB Local Planner (alternative controller if needed)
+DWBLocalPlanner:
+  ros__parameters:
+    plugin: "dwb_core::DWBLocalPlanner"
+    debug_trajectory_details: false
+    min_vel_x: -0.26
+    min_vel_y: -0.26
+    max_vel_x: 0.26
+    max_vel_y: 0.26
+    max_vel_theta: 1.0
+    min_speed_xy: 0.0
+    max_speed_xy: 0.26
+    min_speed_theta: 0.0
+    # Trajectory sampling parameters
+    sim_granularity: 0.025
+    sim_time: 1.0
+    sim_period: 0.125
+    # Critic plugins (cost functions)
+    critics:
+      - BaseObstacle
+      - PathAlign
+      - PathDist
+      - RotateToGoal
+    BaseObstacle:
+      scale: 0.02
+      max_obstacle_height: 2.0
+    PathAlign:
+      scale: 32.0
+      forward_point_distance: 0.1
+    PathDist:
+      scale: 32.0
+    RotateToGoal:
+      scale: 32.0
+      slowing_factor: 5.0
+      lookahead_time: 0.0
+
+# Trajectory Critic Configuration
+trajectory_critics:
+  - "dwb_critics::BaseObstacleCritic"
+  - "dwb_critics::PathAlignCritic"
+  - "dwb_critics::GoalAlignCritic"
+  - "dwb_critics::PathDistCritic"
+  - "dwb_critics::GoalDistCritic"
+
+# Goal Checker
+general_goal_checker:
+  stateful: True
+  plugin: "nav2_core::SimpleGoalChecker"
+  xy_goal_tolerance: 0.1
+  yaw_goal_tolerance: 0.05
