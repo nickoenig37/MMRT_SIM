@@ -25,5 +25,6 @@
         "/home/koener/Downloads/maxwell_ws/build/bringup_py",
         "/home/koener/Downloads/maxwell_ws/install/bringup_py/lib/python3.10/site-packages",
         "/opt/ros/iron/lib/python3.10/site-packages"
-    ]
+    ],
+    "ROS2.distro": "humble"
 }
