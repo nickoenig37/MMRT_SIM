@@ -68,7 +68,7 @@ ekf_map:
                    false, false, false]
 
     # ORB-SLAM3 absolute pose reference in map frame
-    pose0: /robot_pose_slam
+    pose0: /robot/robot_pose_slam_cov
     pose0_queue_size: 10
     pose0_nodelay: true
     pose0_differential: false
