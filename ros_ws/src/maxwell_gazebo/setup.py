@@ -16,6 +16,7 @@ setup(
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.xacro')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.rviz')),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*.world')),
         # Media materials
         (os.path.join('share', package_name, 'media/materials/scripts'), 
@@ -54,6 +55,7 @@ setup(
     entry_points={
         'console_scripts': [
             'swerve_sim_bridge = maxwell_gazebo.swerve_sim_bridge:main',
+            'wheel_odometry = maxwell_gazebo.wheel_odometry:main',
         ],
     },
 )

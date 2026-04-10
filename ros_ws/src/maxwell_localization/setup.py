@@ -26,6 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
             'wheel_odometry = maxwell_localization.wheel_odometry:main',
+            'slam_pose_bridge = maxwell_localization.slam_pose_bridge:main',
         ],
     },
 )

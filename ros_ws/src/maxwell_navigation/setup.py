@@ -24,5 +24,9 @@ setup(
     description='Nav2 autonomous navigation for Maxwell rover',
     license='Apache-2.0',
     tests_require=['pytest'],
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'cmd_vel_bridge = maxwell_navigation.cmd_vel_bridge:main',
+        ],
+    },
 )
