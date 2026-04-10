@@ -253,6 +253,11 @@ venv.bak/
 *.STL
 *.stl
 
+# Large terrain assets
+ros_ws/src/maxwell_gazebo/models/marsyard2020_terrain/meshes/textures/diffuse.jpg
+ros_ws/src/maxwell_gazebo/models/marsyard2021_terrain/dem/*
+ros_ws/src/maxwell_gazebo/models/marsyard2022_terrain/dem/*
+
 # Pyre type checker
 .pyre/
 
