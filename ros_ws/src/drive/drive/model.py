@@ -47,8 +47,8 @@ class SteeringModel:
 	def getDriveModuleVelocities(self) -> List[SwerveModule]:
 
 		drive_module_states = np.matmul(self.ActuatorMatrix, self.body_state)
-		print("Twist: " + str(self.body_state))
-		print("Drives: ", drive_module_states)
+		# print("Twist: " + str(self.body_state))
+		# print("Drives: ", drive_module_states)
 		out = []
 		for i in range(len(drive_module_states) // 2):
 			module = SwerveModule()
