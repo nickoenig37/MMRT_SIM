@@ -15,6 +15,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable, RegisterEventHandler, TimerAction
+from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
@@ -40,6 +41,8 @@ def generate_launch_description():
     y_pose = LaunchConfiguration('y_pose', default='0.0')
     z_pose = LaunchConfiguration('z_pose', default='2.5')
     drive_mode = LaunchConfiguration('drive_mode', default='SWERVE_DRIVE')
+    run_rviz = LaunchConfiguration('run_rviz', default='true')
+    rviz_config = LaunchConfiguration('rviz_config', default=rviz_config_file)
     
     # Declare launch arguments
     declare_use_sim_time_cmd = DeclareLaunchArgument(
@@ -70,6 +73,18 @@ def generate_launch_description():
         'drive_mode',
         default_value='SWERVE_DRIVE',
         description='Drive mode: SWERVE_DRIVE or TANK_STEER_HYBRID'
+    )
+
+    declare_run_rviz_cmd = DeclareLaunchArgument(
+        'run_rviz',
+        default_value='true',
+        description='Launch RViz visualization'
+    )
+
+    declare_rviz_config_cmd = DeclareLaunchArgument(
+        'rviz_config',
+        default_value=rviz_config_file,
+        description='Absolute path to RViz2 config file'
     )
     
     # World file argument
@@ -135,7 +150,8 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'use_sim_time': use_sim_time,
-            'robot_description': robot_description_content
+            'robot_description': robot_description_content,
+            'publish_frequency': 50.0
         }]
     )
     
@@ -234,6 +250,7 @@ def generate_launch_description():
         package='drive',
         executable='drive_controller.py',
         name='drive_controller',
+        parameters=[{'drive_mode': drive_mode}],
         output='screen'
     )
     
@@ -242,6 +259,7 @@ def generate_launch_description():
         package='drive',
         executable='heartbeat.py',
         name='heartbeat',
+        parameters=[{'drive_mode': drive_mode}],
         output='screen'
     )
     
@@ -259,8 +277,9 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         name='rviz2',
-        arguments=['-d', rviz_config_file],
+        arguments=['-d', rviz_config],
         parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(run_rviz),
         output='screen'
     )
     
@@ -274,6 +293,8 @@ def generate_launch_description():
     ld.add_action(declare_y_position_cmd)
     ld.add_action(declare_z_position_cmd)
     ld.add_action(declare_drive_mode_cmd)
+    ld.add_action(declare_run_rviz_cmd)
+    ld.add_action(declare_rviz_config_cmd)
     ld.add_action(declare_world_cmd)
     
     # Start Gazebo and robot state publisher
