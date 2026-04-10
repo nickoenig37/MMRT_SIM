@@ -93,13 +93,15 @@ def generate_launch_description():
         executable='depthimage_to_laserscan_node',
         name='depth_to_scan',
         output='screen',
+        respawn=True,
+        respawn_delay=2.0,
         parameters=[{
             'use_sim_time': use_sim_time,
             'output_frame': 'camera_depth_frame',
             'scan_time': 0.033,
             'range_min': 0.2,
-            'range_max': 8.0,
-            'scan_height': 20,
+            'range_max': 15.0,
+            'scan_height': 3,
         }],
         remappings=[
             ('depth', '/camera/depth/image_raw'),
