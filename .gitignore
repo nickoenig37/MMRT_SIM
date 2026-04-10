@@ -248,7 +248,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 .dmypy.json
-dmypy.json
+
+# Robot mesh assets
+*.STL
+*.stl
 
 # Pyre type checker
 .pyre/
